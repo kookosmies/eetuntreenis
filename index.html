@@ -63,14 +63,27 @@
       margin-top: 20px;
     }
 
-    #booking { margin-bottom: 20px; }
-
+#booking {
+  margin: 0 auto 20px auto;
+  max-width: 500px;
+  text-align: center;
+}
+#booking input, #booking button {
+  width: 100%;
+  box-sizing: border-box;
+}
     input, button { font-size: 1rem; }
 
     @media (max-width: 600px) {
       iframe { height: 520px; }
       h1 { font-size: 2rem; }
     }
+
+    
+
+
+
+    
   </style>
 </head>
 <body>
@@ -78,7 +91,7 @@
     <h1>Eetun treenis</h1>
   </header>
 
-  <img src="kuva1.png" class="hero-img" alt="Eetun treenis kuva" />
+  <img src="https://picsum.photos/800/400" class="hero-img" alt="Eetun treenis kuva" />
 
   <button id="loginBtn">Kirjaudu Google-tilillä</button>
 
@@ -115,7 +128,7 @@
         document.getElementById("loginBtn").style.display = "none";
         document.getElementById("content").style.display = "block";
 
-        // Asetetaan iframe kalenteri
+        // Näytetään kalenteri
         document.getElementById("calendarFrame").src =
           "https://calendar.google.com/calendar/embed?src=" + encodeURIComponent(CUSTOM_CALENDAR_ID) + "&ctz=Europe/Helsinki";
 
@@ -153,6 +166,9 @@
         resource: event
       });
       alert('Varaus lisätty!');
+      // Päivitetään iframe, jotta uusi varaus näkyy heti
+      const calendarFrame = document.getElementById('calendarFrame');
+      calendarFrame.src = calendarFrame.src;
     } catch (err) {
       console.error(err);
       alert('Virhe varauksen lisäyksessä');
