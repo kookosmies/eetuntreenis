@@ -52,7 +52,7 @@
     }
     #loginBtn:hover { background: #005ddd; }
 
-    #content { width: 95%; max-width: 900px; margin-top: 10px; }
+    #content { width: 95%; max-width: 900px; margin-top: 10px; display: none; }
 
     iframe {
       width: 100%;
@@ -60,7 +60,12 @@
       border: 0;
       border-radius: 16px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      margin-top: 20px;
     }
+
+    #booking { margin-bottom: 20px; }
+
+    input, button { font-size: 1rem; }
 
     @media (max-width: 600px) {
       iframe { height: 520px; }
@@ -77,14 +82,25 @@
 
   <button id="loginBtn">Kirjaudu Google-tilillä</button>
 
-  <div id="content" style="display:none;">
+  <div id="content">
+    <section id="booking" class="p-4 bg-white rounded-xl shadow-lg max-w-xl mx-auto">
+      <h2 class="text-2xl font-bold mb-4 text-center">Lisää varaus</h2>
+      <form id="bookingForm" class="flex flex-col gap-4">
+        <input type="text" id="eventTitle" placeholder="Treenin nimi" class="p-3 border rounded-lg" required>
+        <input type="datetime-local" id="eventStart" class="p-3 border rounded-lg" required>
+        <input type="datetime-local" id="eventEnd" class="p-3 border rounded-lg" required>
+        <button type="submit" class="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700">Lisää varaus</button>
+      </form>
+    </section>
+
     <iframe id="calendarFrame" src=""></iframe>
   </div>
 
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
     const CLIENT_ID = "352993855802-0l6df6ovspd329etks0fmim5hr5ppat8.apps.googleusercontent.com";
-    const SCOPES = "https://www.googleapis.com/auth/calendar";
+    const SCOPES = "https://www.googleapis.com/auth/calendar.events";
+    const CUSTOM_CALENDAR_ID = "e74591e5c0c66193fbd70a9d3fe6bc9e08b9fd6e85fe834966c64f515dbea37b@group.calendar.google.com";
 
     let tokenClient;
     let accessToken = null;
@@ -98,9 +114,8 @@
           document.getElementById("loginBtn").style.display = "none";
           document.getElementById("content").style.display = "block";
 
-          // upotettu kalenteri
           document.getElementById("calendarFrame").src =
-            "https://calendar.google.com/calendar/embed?src=" + encodeURIComponent("primary") + "&ctz=Europe/Helsinki";
+            "https://calendar.google.com/calendar/embed?src=" + encodeURIComponent(CUSTOM_CALENDAR_ID) + "&ctz=Europe/Helsinki";
         },
       });
     };
@@ -108,18 +123,7 @@
     document.getElementById("loginBtn").onclick = () => {
       tokenClient.requestAccessToken();
     };
-  </script>
-  <section id="booking" class="mt-8 p-4 bg-white rounded-xl shadow-lg max-w-xl mx-auto">
-    <h2 class="text-2xl font-bold mb-4 text-center">Lisää varaus</h2>
-    <form id="bookingForm" class="flex flex-col gap-4">
-      <input type="text" id="eventTitle" placeholder="Treenin nimi" class="p-3 border rounded-lg" required>
-      <input type="datetime-local" id="eventStart" class="p-3 border rounded-lg" required>
-      <input type="datetime-local" id="eventEnd" class="p-3 border rounded-lg" required>
-      <button type="submit" class="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700">Lisää varaus</button>
-    </form>
-  </section>
 
-  <script>
     document.getElementById('bookingForm').addEventListener('submit', function(e) {
       e.preventDefault();
 
@@ -134,7 +138,7 @@
       };
 
       gapi.client.calendar.events.insert({
-        calendarId: 'primary',
+        calendarId: CUSTOM_CALENDAR_ID,
         resource: event
       }).then(() => {
         alert('Varaus lisätty!');
@@ -144,6 +148,5 @@
       });
     });
   </script>
-
 </body>
 </html>
