@@ -73,9 +73,7 @@
     <h1>Eetun treenis</h1>
   </header>
 
-<!--  <img src="https://picsum.photos/800/400" class="hero-img" alt="Eetun treenis kuva" /> -->
-
-  <img src="kuva1.png" class="hero-img" alt="Eetun treenis kuva" />
+  <img src="https://picsum.photos/800/400" class="hero-img" alt="Eetun treenis kuva" />
 
   <button id="loginBtn">Kirjaudu Google-tilillä</button>
 
@@ -111,5 +109,41 @@
       tokenClient.requestAccessToken();
     };
   </script>
+  <section id="booking" class="mt-8 p-4 bg-white rounded-xl shadow-lg max-w-xl mx-auto">
+    <h2 class="text-2xl font-bold mb-4 text-center">Lisää varaus</h2>
+    <form id="bookingForm" class="flex flex-col gap-4">
+      <input type="text" id="eventTitle" placeholder="Treenin nimi" class="p-3 border rounded-lg" required>
+      <input type="datetime-local" id="eventStart" class="p-3 border rounded-lg" required>
+      <input type="datetime-local" id="eventEnd" class="p-3 border rounded-lg" required>
+      <button type="submit" class="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700">Lisää varaus</button>
+    </form>
+  </section>
+
+  <script>
+    document.getElementById('bookingForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const title = document.getElementById('eventTitle').value;
+      const start = new Date(document.getElementById('eventStart').value).toISOString();
+      const end = new Date(document.getElementById('eventEnd').value).toISOString();
+
+      const event = {
+        summary: title,
+        start: { dateTime: start },
+        end: { dateTime: end }
+      };
+
+      gapi.client.calendar.events.insert({
+        calendarId: 'primary',
+        resource: event
+      }).then(() => {
+        alert('Varaus lisätty!');
+      }).catch(err => {
+        console.error(err);
+        alert('Virhe varauksen lisäyksessä');
+      });
+    });
+  </script>
+
 </body>
 </html>
