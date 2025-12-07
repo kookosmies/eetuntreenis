@@ -96,57 +96,68 @@
     <iframe id="calendarFrame" src=""></iframe>
   </div>
 
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script>
-    const CLIENT_ID = "352993855802-0l6df6ovspd329etks0fmim5hr5ppat8.apps.googleusercontent.com";
-    const SCOPES = "https://www.googleapis.com/auth/calendar.events";
-    const CUSTOM_CALENDAR_ID = "e74591e5c0c66193fbd70a9d3fe6bc9e08b9fd6e85fe834966c64f515dbea37b@group.calendar.google.com";
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/api.js"></script>
+<script>
+  const CLIENT_ID = "352993855802-0l6df6ovspd329etks0fmim5hr5ppat8.apps.googleusercontent.com";
+  const SCOPES = "https://www.googleapis.com/auth/calendar.events";
+  const CUSTOM_CALENDAR_ID = "e74591e5c0c66193fbd70a9d3fe6bc9e08b9fd6e85fe834966c64f515dbea37b@group.calendar.google.com";
 
-    let tokenClient;
-    let accessToken = null;
+  let tokenClient;
+  let accessToken = null;
 
-    window.onload = () => {
-      tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: CLIENT_ID,
-        scope: SCOPES,
-        callback: (tokenResponse) => {
-          accessToken = tokenResponse.access_token;
-          document.getElementById("loginBtn").style.display = "none";
-          document.getElementById("content").style.display = "block";
+  window.onload = () => {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID,
+      scope: SCOPES,
+      callback: async (tokenResponse) => {
+        accessToken = tokenResponse.access_token;
+        document.getElementById("loginBtn").style.display = "none";
+        document.getElementById("content").style.display = "block";
 
-          document.getElementById("calendarFrame").src =
-            "https://calendar.google.com/calendar/embed?src=" + encodeURIComponent(CUSTOM_CALENDAR_ID) + "&ctz=Europe/Helsinki";
-        },
-      });
+        // Asetetaan iframe kalenteri
+        document.getElementById("calendarFrame").src =
+          "https://calendar.google.com/calendar/embed?src=" + encodeURIComponent(CUSTOM_CALENDAR_ID) + "&ctz=Europe/Helsinki";
+
+        // Alustetaan gapi client
+        gapi.load('client', async () => {
+          await gapi.client.init({
+            discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"]
+          });
+          gapi.client.setToken({access_token: accessToken});
+        });
+      },
+    });
+  };
+
+  document.getElementById("loginBtn").onclick = () => {
+    tokenClient.requestAccessToken();
+  };
+
+  document.getElementById('bookingForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const title = document.getElementById('eventTitle').value;
+    const start = new Date(document.getElementById('eventStart').value).toISOString();
+    const end = new Date(document.getElementById('eventEnd').value).toISOString();
+
+    const event = {
+      summary: title,
+      start: { dateTime: start },
+      end: { dateTime: end }
     };
 
-    document.getElementById("loginBtn").onclick = () => {
-      tokenClient.requestAccessToken();
-    };
-
-    document.getElementById('bookingForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      const title = document.getElementById('eventTitle').value;
-      const start = new Date(document.getElementById('eventStart').value).toISOString();
-      const end = new Date(document.getElementById('eventEnd').value).toISOString();
-
-      const event = {
-        summary: title,
-        start: { dateTime: start },
-        end: { dateTime: end }
-      };
-
-      gapi.client.calendar.events.insert({
+    try {
+      await gapi.client.calendar.events.insert({
         calendarId: CUSTOM_CALENDAR_ID,
         resource: event
-      }).then(() => {
-        alert('Varaus lisätty!');
-      }).catch(err => {
-        console.error(err);
-        alert('Virhe varauksen lisäyksessä');
       });
-    });
-  </script>
+      alert('Varaus lisätty!');
+    } catch (err) {
+      console.error(err);
+      alert('Virhe varauksen lisäyksessä');
+    }
+  });
+</script>
 </body>
 </html>
